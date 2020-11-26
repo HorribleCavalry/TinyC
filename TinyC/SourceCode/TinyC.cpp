@@ -1,4 +1,4 @@
-#include<fstream>
+﻿#include<fstream>
 #include<iostream>
 #include<string>
 #include <sstream>
@@ -7,7 +7,7 @@
 int token;
 char* src, *old_src;
 
-const int poolSize = 1024 * 255;
+const int poolSize = 1024 * 256;
 int line;
 
 int *text,
@@ -44,78 +44,79 @@ void program()
 	}
 }
 
-void eval()
+int eval()
 {
 	Instruction op = Instruction::NONE;
 	int* temp = nullptr;
 
 	while (true)
 	{
+		op = (Instruction)*pc++;
 		switch (op)
 		{
 		case NONE:
 			break;
 		case LEA: {ax = (int)(bp + *pc++); }
 			break;
-		case IMM: ax = *pc++;
+		case IMM: {ax = *pc; ++pc; }
 			break;
-		case JMP: pc = (int*)*pc;
+		case JMP: {pc = (int*)*pc; }
 			break;
-		case CALL: {*--sp = (int)(pc + 1); pc = (int*)*pc; }
+		case CALL: {--sp; *sp = (int)(pc + 1); pc = (int*)*pc; }
 			break;
-		case JZ: pc = ax ? pc + 1 : (int*)*pc;
+		case JZ: {pc = ax ? pc + 1 : (int*)*pc; }
 			break;
-		case JNZ: pc = ax ? (int*)*pc : pc + 1;
+		case JNZ: {pc = ax ? (int*)*pc : pc + 1; }
 			break;
-		case ENT: {*--sp = (int)bp; bp = sp; sp = sp - *pc++; }
+		case ENT: {--sp; *sp = (int)bp; bp = sp; sp = sp - *pc++; }
 			break;
 		case ADJ: {sp = sp + *pc++; }
 			break;
 		case LEV: {sp = bp; bp = (int *)*sp++; pc = (int *)*sp++; }
 			break;
-		case LI: ax = *(char*)ax;
+		case LI: {ax = *(int*)ax; }
 			break;
-		case LC:
+		case LC: {ax = *(char*)ax; }
 			break;
-		case SI: *(int *)*sp++ = ax;
+		case SI: {*(int*)*sp = ax; ++sp; }
 			break;
-		case SC: ax = *(char*)*sp++ = ax;
+		case SC: {*(char*)*sp = ax, ++sp; }
 			break;
-		case PUSH: *--sp = ax;
+		case PUSH: {--sp; *sp = ax; }
 			break;
-		case OR:
+		case OR: {ax = *sp++ | ax; }
 			break;
-		case XOR:
+		case XOR: {ax = *sp++ ^ ax; }
 			break;
-		case AND:
+		case AND: {ax = *sp++ & ax; }
 			break;
-		case EQ:
+		case EQ: {ax = *sp++ == ax; }
 			break;
-		case NE:
+		case NE: {ax = *sp++ != ax; }
 			break;
-		case LT:
+		case LT: {ax = *sp++ < ax; }
 			break;
-		case GT:
+		case GT: {ax = *sp++ > ax; }
 			break;
-		case LE:
+		case LE: {ax = *sp++ <= ax; }
 			break;
-		case GE:
+		case GE: {ax = *sp++ >= ax; }
 			break;
-		case SHL:
+		case SHL: {ax = *sp++ << ax; }
 			break;
-		case SHR:
+		case SHR: {ax = *sp++ >> ax; }
 			break;
-		case ADD:
+		case ADD: {ax = *sp++ + ax; }
 			break;
-		case SUB:
+		case SUB: {ax = *sp++ - ax; }
 			break;
-		case MUL:
+		case MUL: {ax = *sp++ * ax; }
 			break;
-		case DIV:
+		case DIV: {ax = *sp++ / ax; }
 			break;
-		case MOD:
+		case MOD: {ax = *sp++ % ax; }
 			break;
-		case OPEN:
+		case OPEN: 
 			break;
 		case READ:
 			break;
@@ -123,15 +124,15 @@ void eval()
 			break;
 		case PRTF:
 			break;
-		case MALC:
+		case MALC: {ax = (int)malloc(*sp); }
 			break;
-		case MSET:
+		case MSET: {ax = (int)memset((char*)sp[2], sp[1], *sp); }
 			break;
-		case MCMP:
+		case MCMP: {ax = memcmp((char *)sp[2], (char *)sp[1], *sp); }
 			break;
-		case EXIT:
+		case EXIT: {printf("Exit(%d)", *sp); return *sp; }
 			break;
-		default:
+		default: {printf("unknown instruction:%d\n", op); return -1; }
 			break;
 		}
 	}
@@ -148,9 +149,11 @@ int main(int argc, char** argv)
 	inf.open(targetPath);
 	buffer << inf.rdbuf();
 	content = buffer.str();
-	std::cout << content;
 	inf.close();
+	std::cout << content<<std::endl;
 
+	line = 1;
+	src = old_src = (char*)malloc(poolSize);
 	text = old_text = (int*)malloc(poolSize);
 	data = (char*)malloc(poolSize);
 
@@ -163,5 +166,18 @@ int main(int argc, char** argv)
 	bp = sp = (int*)((int)stack + poolSize);
 	ax = 0;
 
+	int i = 0;
+	text[i++] = IMM;
+	text[i++] = 10;
+	text[i++] = PUSH;
+	text[i++] = IMM;
+	text[i++] = 20;
+	text[i++] = ADD;
+	text[i++] = PUSH;
+	text[i++] = EXIT;
+
+	pc = text;
 	program();
+
+	return eval();
 }
