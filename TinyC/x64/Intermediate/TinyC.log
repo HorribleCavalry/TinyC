@@ -1,28 +1,4 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(376,5): warning MSB8004: Intermediate 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Intermediate 目录。
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Output 目录。
   TinyC.cpp
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(59): warning C4311: “类型强制转换”: 从“int *”到“int”的指针截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(59): warning C4302: “类型强制转换”: 从“int *”到“int”截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(63): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(65): warning C4311: “类型强制转换”: 从“int *”到“int”的指针截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(65): warning C4302: “类型强制转换”: 从“int *”到“int”截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(65): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(67): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(69): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(71): warning C4311: “类型强制转换”: 从“int *”到“int”的指针截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(71): warning C4302: “类型强制转换”: 从“int *”到“int”截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(75): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(77): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(79): warning C4312: “类型强制转换”: 从“int”转换到更大的“char *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(81): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(83): warning C4312: “类型强制转换”: 从“int”转换到更大的“char *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(127): warning C4311: “类型强制转换”: 从“void *”到“int”的指针截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(127): warning C4302: “类型强制转换”: 从“void *”到“int”截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(129): warning C4312: “类型强制转换”: 从“int”转换到更大的“char *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(129): warning C4311: “类型强制转换”: 从“void *”到“int”的指针截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(129): warning C4302: “类型强制转换”: 从“void *”到“int”截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(131): warning C4312: “类型强制转换”: 从“int”转换到更大的“char *”
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(166): warning C4311: “类型强制转换”: 从“int *”到“int”的指针截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(166): warning C4302: “类型强制转换”: 从“int *”到“int”截断
-d:\gitspace\tinyc\tinyc\sourcecode\tinyc.cpp(166): warning C4312: “类型强制转换”: 从“int”转换到更大的“int *”
   TinyC.vcxproj -> D:\GitSpace\TinyC\TinyC\.\x64\Debug\TinyC.exe
