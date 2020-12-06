@@ -6,6 +6,7 @@
 #include <vector>
 #include <stack>
 #include <utility>
+#include <unordered_map>
 
 
 class TinyCProgram
@@ -20,17 +21,10 @@ public:
 
 	enum { Token, Hash, Name, Type, Class, Value, BType, BClass, BValue, IdSize };
 
-	struct identifier 
+	struct StructDefinition
 	{
-		int token;
-		int hash;
-		char * name;
-		int cla;
-		int type;
-		int value;
-		int Bclass;
-		int Btype;
-		int Bvalue;
+		std::string structName;
+		unsigned long long byteSize = 0;
 	};
 
 private:
@@ -52,12 +46,15 @@ private:
 	int* current_id;
 	int* symbols;
 
+	std::unordered_map<std::string, StructDefinition> structDefMap;
+
 public:
 	TinyCProgram()
 		:line(1), stackSize(1024*1024), memorySize(1024 * 1024)
 	{
 		stackPointer = stackMemory = (long long*)malloc(stackSize);
 		programCounter = programMemory = (long long*)malloc(memorySize);
+		initBasicStruct();
 	}
 
 	TinyCProgram(unsigned long long _stackSize, unsigned long long _memorySize)
@@ -65,9 +62,94 @@ public:
 	{
 		stackPointer = stackMemory = (long long*)malloc(stackSize);
 		programCounter = programMemory = (long long*)malloc(memorySize);
+		initBasicStruct();
 	}
 
 private:
+	void initBasicStruct()
+	{
+		StructDefinition boolDef;
+		StructDefinition charDef;
+		StructDefinition unsignedCharDef;
+		StructDefinition shortDef;
+		StructDefinition unsignedShortDef;
+		StructDefinition intDef;
+		StructDefinition unsignedIntDef;
+		StructDefinition longDef;
+		StructDefinition unsignedLongDef;
+		StructDefinition longLongDef;
+		StructDefinition unsignedLongLongDef;
+		StructDefinition floatDef;
+		StructDefinition doubleDef;
+		StructDefinition pointerDef;
+
+		boolDef.byteSize = sizeof(bool);
+		boolDef.structName = "bool";
+
+		charDef.byteSize = sizeof(char);
+		charDef.structName = "char";
+
+		unsignedCharDef.byteSize = sizeof(unsigned char);
+		unsignedCharDef.structName = "unsigned char";
+
+		shortDef.byteSize = sizeof(short);
+		shortDef.structName = "short";
+
+		unsignedShortDef.byteSize = sizeof(unsigned short);
+		unsignedShortDef.structName = "unsigned short";
+
+		intDef.byteSize = sizeof(int);
+		intDef.structName = "int";
+
+		unsignedIntDef.byteSize = sizeof(unsigned int);
+		unsignedIntDef.structName = "unsigned int";
+
+		longDef.byteSize = sizeof(long);
+		longDef.structName = "long";
+
+		unsignedLongDef.byteSize = sizeof(unsigned long);
+		unsignedLongDef.structName = "unsigned long";
+
+		longLongDef.byteSize = sizeof(long long);
+		longLongDef.structName = "long long";
+
+		unsignedLongLongDef.byteSize = sizeof(unsigned long long);
+		unsignedLongLongDef.structName = "unsigned long long";
+
+		floatDef.byteSize = sizeof(float);
+		floatDef.structName = "float";
+
+		doubleDef.byteSize = sizeof(double);
+		doubleDef.structName = "double";
+
+		pointerDef.byteSize = sizeof(void*);
+		pointerDef.structName = "void*";
+
+		structDefMap["bool"] = boolDef;
+		structDefMap["char"] = charDef;
+		structDefMap["unsigned char"] = unsignedCharDef;
+		structDefMap["short"] = shortDef;
+		structDefMap["unsigned short"] = unsignedShortDef;
+		structDefMap["int"] = intDef;
+		structDefMap["unsigned int"] = unsignedIntDef;
+		structDefMap["long"] = longDef;
+		structDefMap["unsigned long"] = unsignedLongDef;
+		structDefMap["long long"] = longLongDef;
+		structDefMap["unsigned long long"] = unsignedLongLongDef;
+		structDefMap["float"] = floatDef;
+		structDefMap["double"] = doubleDef;
+
+		for (auto it : structDefMap)
+		{
+			std::cout << "The type is " << it.second.structName << ", and its byteSize is " << it.second.byteSize << std::endl;
+		}
+	}
+
+	void structDefinitionParser()
+	{
+
+	}
+
 	void Parser()
 	{
 		std::string word;
@@ -111,6 +193,11 @@ private:
 				}
 				word.append(content.begin() + lastIdx, content.begin() + charIdx);
 				--charIdx;
+
+				if (word.compare("struct"))
+				{
+					++charIdx;
+				}
 
 				std::cout << "Key word: " << word << std::endl;
 			}

@@ -1,4 +1,11 @@
-﻿int main()
+﻿struct MyStruct
+{
+	int a;
+	int b;
+	float c;
+};
+
+int main()
 {
 	//sfasfl;
 	float a = 10 / 5;
