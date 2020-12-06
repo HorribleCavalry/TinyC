@@ -70,19 +70,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>.\x64\Debug</OutDir>
-    <IntDir>.\x64\Intermediate</IntDir>
+    <OutDir>.\Program\x64</OutDir>
+    <IntDir>.\Intermediate\x64</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>.\x64\Release</OutDir>
-    <IntDir>.\x64\Intermediate</IntDir>
+    <OutDir>.\Program\x64</OutDir>
+    <IntDir>.\Intermediate\x64</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>.\x86\Intermediate</IntDir>
-    <OutDir>.\x86\Debug</OutDir>
+    <IntDir>.\Intermediate\x86</IntDir>
+    <OutDir>.\Program\x86</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>.\x86\Intermediate</IntDir>
+    <IntDir>.\Intermediate\x86</IntDir>
+    <OutDir>.\Program\x86</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -138,6 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="Program\TinyCSourceCode\program.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <FileType>CppCode</FileType>
+    </None>
     <ClCompile Include="SourceCode\TinyC.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -17,6 +17,22 @@ public:
 		OR, XOR, AND, EQ, NE, LT, GT, LE, GE, SHL, SHR, ADD, SUB, MUL, DIV, MOD,
 		OPEN, READ, CLOS, PRTF, MALC, MSET, MCMP, EXIT
 	};
+
+	enum { Token, Hash, Name, Type, Class, Value, BType, BClass, BValue, IdSize };
+
+	struct identifier 
+	{
+		int token;
+		int hash;
+		char * name;
+		int cla;
+		int type;
+		int value;
+		int Bclass;
+		int Btype;
+		int Bvalue;
+	};
+
 private:
 	std::string content;
 	unsigned long long line;
@@ -28,6 +44,13 @@ private:
 	long long* programCounter;
 	long long* programMemory;
 	long long ax;
+
+	int token;
+	char* src;
+	char* old_src;
+
+	int* current_id;
+	int* symbols;
 
 public:
 	TinyCProgram()
@@ -45,6 +68,243 @@ public:
 	}
 
 private:
+	void Parser()
+	{
+		std::string word;
+		for (unsigned long long charIdx = 0; charIdx < content.size(); ++charIdx)
+		{
+			token = content[charIdx];
+			if (token == '\n')
+			{
+				++charIdx;
+				++line;
+			}
+			else if (token == '#')
+			{
+				while (content[charIdx] != '\n')
+				{
+					++charIdx;
+				}
+			}
+			else if (token == '"')
+			{
+				++charIdx;
+				unsigned long long lastIdx = charIdx;
+				word.erase(word.begin(), word.end());
+
+				while (content[charIdx]!='"')
+				{
+					++charIdx;
+				}
+				word.append(content.begin() + lastIdx, content.begin() + charIdx);
+
+				std::cout << "Const string: " << word << std::endl;
+			}
+			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
+			{
+				unsigned long long lastIdx = charIdx;
+
+				word.erase(word.begin(), word.end());
+				while ((content[charIdx] >= 'a' && content[charIdx] <= 'z') || (content[charIdx] >= 'A' && content[charIdx] <= 'Z') || content[charIdx] == '_')
+				{
+					++charIdx;
+				}
+				word.append(content.begin() + lastIdx, content.begin() + charIdx);
+				--charIdx;
+
+				std::cout << "Key word: " << word << std::endl;
+			}
+			else if (token >= '0' && token <= '9')
+			{
+				unsigned long long lastIdx = charIdx;
+				long long numValI = 0;
+				double numValF = 0;
+				bool isFloat = false;
+				unsigned long long dotIdx = 0;
+
+				word.erase(word.begin(), word.end());
+				while ((content[charIdx] >= '0' && content[charIdx] <= '9') || content[charIdx] == '.')
+				{
+					if (content[charIdx] == '.')
+					{
+						isFloat = true;
+					}
+					++charIdx;
+				}
+				word.append(content.begin() + lastIdx, content.begin() + charIdx);
+				--charIdx;
+
+				if (isFloat)
+				{
+					numValF = std::stod(word);
+					std::cout << "Const Float num: " << numValF << std::endl;
+				}
+				else
+				{
+					numValI = std::stoi(word);
+					std::cout << "Const Int num: " << numValI << std::endl;
+				}
+
+			}
+			else if (token == '+')
+			{
+				if (content[charIdx + 1] == '+')
+				{
+					++charIdx;
+					std::cout << "Operator: ++" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: +" << std::endl;
+				}
+			}
+			else if (token == '-')
+			{
+				if (content[charIdx + 1] == '-')
+				{
+					++charIdx;
+					std::cout << "Operator: --" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: -" << std::endl;
+				}
+			}
+			else if (token == '*')
+			{
+				std::cout << "Operator: *" << std::endl;
+			}
+			else if (token == '/')
+			{
+				if (content[charIdx + 1] == '/')
+				{
+					charIdx += 2;
+					while (content[charIdx] != '\n')
+					{
+						++charIdx;
+					}
+					--charIdx;
+
+					std::cout << "Skip Commit" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: /" << std::endl;
+				}
+
+			}
+			else if (token == '=')
+			{
+				if (content[charIdx + 1] == '=')
+				{
+					++charIdx;
+
+					std::cout << "Operator: ==" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: =" << std::endl;
+				}
+
+			}
+			else if (token == '!')
+			{
+				if (content[charIdx + 1] == '=')
+				{
+					++charIdx;
+
+					std::cout << "Operator: !=" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: !" << std::endl;
+				}
+
+			}
+			else if (token == '<')
+			{
+				if (content[charIdx + 1] == '=')
+				{
+					++charIdx;
+
+					std::cout << "Operator: <=" << std::endl;
+				}
+				else if (content[charIdx + 1] == '<')
+				{
+					++charIdx;
+
+					std::cout << "Operator: <<" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: <" << std::endl;
+				}
+
+			}
+			else if (token == '>')
+			{
+				if (content[charIdx + 1] == '=')
+				{
+					++charIdx;
+
+					std::cout << "Operator: >=" << std::endl;
+				}
+				else if (content[charIdx + 1] == '>')
+				{
+					++charIdx;
+
+					std::cout << "Operator: >>" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: >" << std::endl;
+				}
+
+			}
+			else if (token == '|')
+			{
+				if (content[charIdx + 1] == '|')
+				{
+					++charIdx;
+
+					std::cout << "Operator: ||" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: |" << std::endl;
+				}
+			}
+			else if (token == '&')
+			{
+				if (content[charIdx + 1] == '&')
+				{
+					++charIdx;
+
+					std::cout << "Operator: &&" << std::endl;
+				}
+				else
+				{
+					std::cout << "Operator: &" << std::endl;
+				}
+			}
+			else if (token == '^')
+			{
+				std::cout << "Operator: ^" << std::endl;
+
+			}
+			else if (token == '%')
+			{
+				std::cout << "Operator: %" << std::endl;
+			}
+			else if (token == '?')
+			{
+				std::cout << "Operator: ?" << std::endl;
+			}
+
+		}
+
+	}
+
 	void GenerateInstructions()
 	{
 		int iterMem = 0;
@@ -67,17 +327,25 @@ public:
 		buffer << inf.rdbuf();
 		content = buffer.str();
 		inf.close();
-		std::cout << "Now compiling C file: " << path << std::endl;
-		std::cout << "This content of current file is:" << std::endl;
-		std::cout << content << std::endl;
 
+		std::cout << "Now compiling C file..." << path << std::endl;
+		std::cout << "This content of current file is:" << std::endl;
+		std::cout << content << std::endl << std::endl;
+
+		std::cout << "Now start parser:" << std::endl;
+		Parser();
+		std::cout << "Now finished parser!" << std::endl << std::endl;
+
+		std::cout << "Now generate instructions:" << std::endl;
 		GenerateInstructions();
+		std::cout << "Now finished generate instructions!" << std::endl << std::endl;
 
 		std::cout << "Now compiling finished!" << std::endl;
 
 	}
 	void Execute()
 	{
+		std::cout << "Now execute program!" << std::endl;
 		long long OP;
 		while (programCounter < programMemory + memorySize/sizeof(long long))
 		{
@@ -160,7 +428,7 @@ public:
 					   break;
 			case MCMP: {/*ax = memcmp((char *)sp[2], (char *)sp[1], *sp);*/ }
 					   break;
-			case EXIT: {std::cout << *(stackPointer - 1) << std::endl; return; }
+			case EXIT: {std::cout << *(stackPointer - 1) << std::endl; }
 					   break;
 			default: {std::cout << "unknown instruction:%d\n" << *(stackPointer - 1); return; }
 					 break;
@@ -169,6 +437,8 @@ public:
 			++programCounter;
 
 		}
+
+		std::cout << "Now finished program execution!" << std::endl;
 	}
 	~TinyCProgram()
 	{
@@ -180,8 +450,10 @@ public:
 int main(int argc, char** argv)
 {
 	std::string exePath = argv[0];
-	std::string hierarchyPath = exePath.substr(0, exePath.find_last_of('\\') + 1);
-	std::string path = hierarchyPath.append("program.c");
+	std::string hierarchyPath = exePath.substr(0, exePath.find_last_of('\\'));
+	std::string TinyCProgramSourceCodePath = hierarchyPath.substr(0, hierarchyPath.find_last_of('\\') + 1).append("TinyCSourceCode\\");
+
+	std::string path = TinyCProgramSourceCodePath.append("program.c");
 	TinyCProgram routine(8 * sizeof(long long), 8 * sizeof(long long));
 	routine.CompileFile(path);
 

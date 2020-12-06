@@ -4,10 +4,16 @@
     <Filter Include="SourceCode">
       <UniqueIdentifier>{5159f070-04e6-44d5-bdc2-cf32e51c09a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TinyCProgram">
+      <UniqueIdentifier>{6a5905b2-02c8-4fde-a0cd-d6bca3f0e2d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCode\TinyC.cpp">
       <Filter>SourceCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Program\TinyCSourceCode\program.c">
+      <Filter>TinyCProgram</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
