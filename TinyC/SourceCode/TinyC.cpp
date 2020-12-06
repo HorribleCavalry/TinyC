@@ -23,8 +23,11 @@ public:
 
 	struct StructDefinition
 	{
+		bool isVariable = false;
 		std::string structName;
 		unsigned long long byteSize = 0;
+
+		std::unordered_map<std::string, StructDefinition> membersMap;
 	};
 
 private:
@@ -66,6 +69,8 @@ public:
 	}
 
 private:
+	unsigned long long charIdx = 0;
+
 	void initBasicStruct()
 	{
 		StructDefinition boolDef;
@@ -145,7 +150,54 @@ private:
 		}
 	}
 
-	void structDefinitionParser()
+	struct WordAndIdx
+	{
+		unsigned long long startIdx;
+		unsigned long long endIdx;
+		unsigned long long line;
+		std::string word;
+		WordAndIdx(unsigned long long _startIdx, unsigned long long _endIdx, unsigned long long _line)
+			:startIdx(_startIdx), endIdx(_endIdx), line(_line) {}
+	};
+
+	WordAndIdx GetNextWord(unsigned long long startIdx, unsigned long long line)
+	{
+		WordAndIdx result(startIdx, startIdx, line);
+		while (true)
+		{
+			token = content[result.endIdx];
+			if (token == '\n')
+			{
+				++result.line;
+			}
+			else if (token == '#')
+			{
+				while (content[result.endIdx] != '\n')
+				{
+					++result.endIdx;
+				}
+				--result.endIdx;
+			}
+			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
+			{
+				result.word.erase(result.word.begin(), result.word.end());
+				while ((content[result.endIdx] >= 'a' && content[result.endIdx] <= 'z') || (content[result.endIdx] >= 'A' && content[result.endIdx] <= 'Z') || (content[result.endIdx] >= '0' && content[result.endIdx] <= '9') || content[result.endIdx] == '_')
+				{
+					++result.endIdx;
+				}
+				result.word.append(content.begin() + lastIdx, content.begin() + charIdx);
+				--charIdx;
+				break;
+			}
+			++result.endIdx;
+		}
+
+		return word;
+	}
+
+
+
+	void StructDefinitionParser()
 	{
 
 	}
@@ -153,7 +205,7 @@ private:
 	void Parser()
 	{
 		std::string word;
-		for (unsigned long long charIdx = 0; charIdx < content.size(); ++charIdx)
+		for (; charIdx < content.size(); ++charIdx)
 		{
 			token = content[charIdx];
 			if (token == '\n')
@@ -182,21 +234,13 @@ private:
 
 				std::cout << "Const string: " << word << std::endl;
 			}
-			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
+			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || (token >= '0' && token <= '9') || token == '_')
 			{
-				unsigned long long lastIdx = charIdx;
+				word = GetNextWord();
 
-				word.erase(word.begin(), word.end());
-				while ((content[charIdx] >= 'a' && content[charIdx] <= 'z') || (content[charIdx] >= 'A' && content[charIdx] <= 'Z') || content[charIdx] == '_')
+				if (!word.compare("struct"))
 				{
-					++charIdx;
-				}
-				word.append(content.begin() + lastIdx, content.begin() + charIdx);
-				--charIdx;
-
-				if (word.compare("struct"))
-				{
-					++charIdx;
+					StructDefinitionParser();
 				}
 
 				std::cout << "Key word: " << word << std::endl;
