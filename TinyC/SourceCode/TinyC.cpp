@@ -185,21 +185,61 @@ private:
 				{
 					++result.endIdx;
 				}
-				result.word.append(content.begin() + lastIdx, content.begin() + charIdx);
+				result.word.append(content.begin() + result.startIdx, content.begin() + result.endIdx);
 				--charIdx;
 				break;
 			}
 			++result.endIdx;
 		}
 
-		return word;
+		return result;
 	}
 
 
 
 	void StructDefinitionParser()
 	{
+		std::string structDefStr;
+		std::string variableName;
+		StructDefinition structDef;
+		
+		while (token!='}')
+		{
+			token = content[charIdx];
+			if (token == '\n')
+			{
+				++charIdx;
+				++line;
+			}
+			else if (token == '#')
+			{
+				while (content[charIdx] != '\n')
+				{
+					++charIdx;
+				}
+				--charIdx;
+			}
+			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
+			{
+				WordAndIdx wordAndIdx = GetNextWord(charIdx, line);
+				charIdx = wordAndIdx.endIdx;
+				line = wordAndIdx.line;
 
+				structDefStr = wordAndIdx.word;
+
+				wordAndIdx = GetNextWord(charIdx, line);
+				charIdx = wordAndIdx.endIdx;
+				line = wordAndIdx.line;
+
+				variableName = wordAndIdx.word;
+
+			}
+
+
+
+			++charIdx;
+		}
+		--charIdx;
 	}
 
 	void Parser()
@@ -219,6 +259,7 @@ private:
 				{
 					++charIdx;
 				}
+				--charIdx;
 			}
 			else if (token == '"')
 			{
@@ -234,16 +275,19 @@ private:
 
 				std::cout << "Const string: " << word << std::endl;
 			}
-			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || (token >= '0' && token <= '9') || token == '_')
+			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
 			{
-				word = GetNextWord();
+				WordAndIdx wordAndIdx = GetNextWord(charIdx, line);
 
+				word = wordAndIdx.word;
+				charIdx = wordAndIdx.endIdx;
 				if (!word.compare("struct"))
 				{
+					++charIdx;
 					StructDefinitionParser();
 				}
 
-				std::cout << "Key word: " << word << std::endl;
+				std::cout << "Unit word: " << word << std::endl;
 			}
 			else if (token >= '0' && token <= '9')
 			{
