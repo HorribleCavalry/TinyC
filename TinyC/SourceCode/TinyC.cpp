@@ -42,7 +42,7 @@ private:
 	long long* programMemory;
 	long long ax;
 
-	int token;
+	char token;
 	char* src;
 	char* old_src;
 
@@ -175,18 +175,21 @@ private:
 				while (content[result.endIdx] != '\n')
 				{
 					++result.endIdx;
+					++result.startIdx;
 				}
 				--result.endIdx;
 			}
 			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
 			{
+				result.startIdx = result.endIdx;
+
 				result.word.erase(result.word.begin(), result.word.end());
 				while ((content[result.endIdx] >= 'a' && content[result.endIdx] <= 'z') || (content[result.endIdx] >= 'A' && content[result.endIdx] <= 'Z') || (content[result.endIdx] >= '0' && content[result.endIdx] <= '9') || content[result.endIdx] == '_')
 				{
 					++result.endIdx;
 				}
 				result.word.append(content.begin() + result.startIdx, content.begin() + result.endIdx);
-				--charIdx;
+				--result.endIdx;
 				break;
 			}
 			++result.endIdx;
@@ -199,16 +202,22 @@ private:
 
 	void StructDefinitionParser()
 	{
-		std::string structDefStr;
-		std::string variableName;
-		StructDefinition structDef;
-		
+		std::string memberStructDefName;
+		std::string memberVariableName;
+
+		StructDefinition currentStructDef;
+		WordAndIdx wordAndIdx = GetNextWord(charIdx, line);
+		charIdx = wordAndIdx.endIdx;
+		line = wordAndIdx.line;
+		currentStructDef.structName = wordAndIdx.word;
+
+		++charIdx;
+		token = content[charIdx];
 		while (token!='}')
 		{
 			token = content[charIdx];
 			if (token == '\n')
 			{
-				++charIdx;
 				++line;
 			}
 			else if (token == '#')
@@ -221,18 +230,31 @@ private:
 			}
 			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
 			{
-				WordAndIdx wordAndIdx = GetNextWord(charIdx, line);
-				charIdx = wordAndIdx.endIdx;
-				line = wordAndIdx.line;
-
-				structDefStr = wordAndIdx.word;
-
 				wordAndIdx = GetNextWord(charIdx, line);
 				charIdx = wordAndIdx.endIdx;
 				line = wordAndIdx.line;
 
-				variableName = wordAndIdx.word;
+				if (!wordAndIdx.word.compare("struct"))
+				{
+					++charIdx;
+					StructDefinitionParser();
 
+					wordAndIdx = GetNextWord(charIdx, line);
+					charIdx = wordAndIdx.endIdx;
+					line = wordAndIdx.line;
+				}
+
+				memberStructDefName = wordAndIdx.word;
+
+				++charIdx;
+				wordAndIdx = GetNextWord(charIdx, line);
+				charIdx = wordAndIdx.endIdx;
+				line = wordAndIdx.line;
+
+				memberVariableName = wordAndIdx.word;
+
+				currentStructDef.byteSize += structDefMap[memberStructDefName].byteSize;
+				currentStructDef.membersMap[memberVariableName] = structDefMap[memberStructDefName];
 			}
 
 
@@ -240,6 +262,15 @@ private:
 			++charIdx;
 		}
 		--charIdx;
+		structDefMap[currentStructDef.structName] = currentStructDef;
+
+		std::cout << "Struct name: " << currentStructDef.structName << std::endl;
+		std::cout << "Struct bytesize: " << currentStructDef.byteSize << std::endl;
+		std::cout << "Struct has these members: " << std::endl;
+		for (auto i : currentStructDef.membersMap)
+		{
+			std::cout << i.second.structName << " " << i.first << std::endl;
+		}
 	}
 
 	void Parser()

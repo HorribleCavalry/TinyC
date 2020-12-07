@@ -1,8 +1,24 @@
-﻿struct MyStruct
+﻿struct MyStruct0
 {
 	int a;
-	int b;
-	float c;
+	float b;
+	char c;
+};
+
+struct MyStruct1
+{
+	int d;
+	int e;
+	float f;
+	struct MyStruct2
+	{
+		MyStruct0 g;
+		int h;
+	};
+
+	MyStruct2 i;
+
+	MyStruct0 j;
 };
 
 int main()
