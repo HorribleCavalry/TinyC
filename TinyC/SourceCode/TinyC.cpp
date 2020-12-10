@@ -32,6 +32,7 @@ public:
 
 	struct FunctionDefinition
 	{
+		unsigned long long paramNum = 0;
 		std::string returnTypeName;
 		std::string functionName;
 		std::map<std::string, StructDefinition> localVariable;
@@ -170,7 +171,7 @@ private:
 			:startIdx(_startIdx), endIdx(_endIdx), line(_line) {}
 	};
 
-	WordAndIdx GetNextWord(unsigned long long startIdx, unsigned long long line)
+	const WordAndIdx GetNextWord(unsigned long long startIdx, unsigned long long line)
 	{
 		WordAndIdx result(startIdx, startIdx, line);
 		while (true)
@@ -282,6 +283,73 @@ private:
 
 	void FunctionDefinitionParser()
 	{
+		std::cout << "Now Start main function parser:" << std::endl;
+
+		auto wordAndIdx = GetNextWord(charIdx,line);
+		charIdx = wordAndIdx.endIdx;
+		line = wordAndIdx.line;
+
+		std::string returnTypeName;
+		returnTypeName = wordAndIdx.word;
+		StructDefinition returnValueStruct = structDefMap[returnTypeName];
+
+		std::cout << returnTypeName << " ";
+
+
+		FunctionDefinition currentDefinition;
+
+		currentDefinition.returnTypeName = returnValueStruct.structName;
+		
+		wordAndIdx = GetNextWord(charIdx, line);
+		charIdx = wordAndIdx.endIdx;
+		line = wordAndIdx.line;
+
+		std::string functionName = wordAndIdx.word;
+		currentDefinition.functionName = functionName;
+
+		std::cout << functionName << "(";
+
+
+		while (content[charIdx]!='{')
+		{
+
+			if (content[charIdx] == '\n')
+			{
+				++line;
+			}
+			else if (content[charIdx] == '#')
+			{
+				while (content[charIdx] != '\n')
+				{
+					++charIdx;
+				}
+				++line;
+			}
+			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
+			{
+				WordAndIdx wordAndIdx = GetNextWord(charIdx, line);
+				charIdx = wordAndIdx.endIdx;
+				line = wordAndIdx.line;
+
+				std::string variableTypeName = wordAndIdx.word;
+
+				wordAndIdx = GetNextWord(charIdx, line);
+				charIdx = wordAndIdx.endIdx;
+				line = wordAndIdx.line;
+
+				std::string variableName = wordAndIdx.word;
+				std::cout << variableTypeName << " " << variableName << ", " << std::endl;
+
+				currentDefinition.localVariable[variableName] = structDefMap[variableTypeName];
+
+				++currentDefinition.paramNum;
+
+				--charIdx;
+			}
+
+			++charIdx;
+		}
+		std::cout << ");" << std::endl;
 
 	}
 
@@ -339,19 +407,38 @@ private:
 			{
 				WordAndIdx wordAndIdx = GetNextWord(charIdx, line);
 				word = wordAndIdx.word;
-				charIdx = wordAndIdx.endIdx;
 
 				if (!word.compare("struct"))
 				{
+					charIdx = wordAndIdx.endIdx;
 					StructDefinitionParser();
-				}
-				else if (structDefMap.find(word)!= structDefMap.end())
-				{
-					FunctionDefinitionParser();
 				}
 				else
 				{
-					std::cout << "Unit word: " << word << std::endl;
+					std::string globalVariableTypeName = wordAndIdx.word;
+					std::string globalVariableName;
+
+					wordAndIdx = GetNextWord(wordAndIdx.endIdx, wordAndIdx.line);
+					globalVariableName = wordAndIdx.word;
+
+					unsigned long long lookAfterIdx = wordAndIdx.endIdx;
+
+					while (content[lookAfterIdx] != ' ')
+					{
+						++lookAfterIdx;
+					}
+
+					if (content[lookAfterIdx] == '(')
+					{
+						FunctionDefinitionParser();
+					}
+					else
+					{
+						std::cout << "Global variable: " << globalVariableTypeName << " " << globalVariableName << std::endl;
+						variableMap[globalVariableName] = structDefMap[globalVariableTypeName];
+					}
+
+
 				}
 
 				--charIdx;
