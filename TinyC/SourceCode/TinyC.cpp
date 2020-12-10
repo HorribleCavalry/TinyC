@@ -7,6 +7,7 @@
 #include <stack>
 #include <utility>
 #include <unordered_map>
+#include <map>
 
 
 class TinyCProgram
@@ -23,11 +24,10 @@ public:
 
 	struct StructDefinition
 	{
-		bool isVariable = false;
 		std::string structName;
 		unsigned long long byteSize = 0;
 
-		std::unordered_map<std::string, StructDefinition> membersMap;
+		std::map<std::string, StructDefinition> membersMap;
 	};
 
 private:
@@ -49,7 +49,7 @@ private:
 	int* current_id;
 	int* symbols;
 
-	std::unordered_map<std::string, StructDefinition> structDefMap;
+	std::map<std::string, StructDefinition> structDefMap;
 
 public:
 	TinyCProgram()
@@ -175,9 +175,8 @@ private:
 				while (content[result.endIdx] != '\n')
 				{
 					++result.endIdx;
-					++result.startIdx;
 				}
-				--result.endIdx;
+				++result.line;
 			}
 			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
 			{
@@ -189,7 +188,6 @@ private:
 					++result.endIdx;
 				}
 				result.word.append(content.begin() + result.startIdx, content.begin() + result.endIdx);
-				--result.endIdx;
 				break;
 			}
 			++result.endIdx;
@@ -202,6 +200,8 @@ private:
 
 	void StructDefinitionParser()
 	{
+		std::cout << "Now Start struct parser:" << std::endl;
+
 		std::string memberStructDefName;
 		std::string memberVariableName;
 
@@ -211,7 +211,8 @@ private:
 		line = wordAndIdx.line;
 		currentStructDef.structName = wordAndIdx.word;
 
-		++charIdx;
+		std::cout << "struct name: " << currentStructDef.structName << std::endl;
+
 		token = content[charIdx];
 		while (token!='}')
 		{
@@ -226,7 +227,7 @@ private:
 				{
 					++charIdx;
 				}
-				--charIdx;
+				++line;
 			}
 			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
 			{
@@ -236,7 +237,6 @@ private:
 
 				if (!wordAndIdx.word.compare("struct"))
 				{
-					++charIdx;
 					StructDefinitionParser();
 
 					wordAndIdx = GetNextWord(charIdx, line);
@@ -246,7 +246,6 @@ private:
 
 				memberStructDefName = wordAndIdx.word;
 
-				++charIdx;
 				wordAndIdx = GetNextWord(charIdx, line);
 				charIdx = wordAndIdx.endIdx;
 				line = wordAndIdx.line;
@@ -255,33 +254,27 @@ private:
 
 				currentStructDef.byteSize += structDefMap[memberStructDefName].byteSize;
 				currentStructDef.membersMap[memberVariableName] = structDefMap[memberStructDefName];
+				std::cout << memberStructDefName << " " << memberVariableName << std::endl;
+
+				--charIdx;
 			}
-
-
 
 			++charIdx;
 		}
-		--charIdx;
+		charIdx+=2;
 		structDefMap[currentStructDef.structName] = currentStructDef;
-
-		std::cout << "Struct name: " << currentStructDef.structName << std::endl;
-		std::cout << "Struct bytesize: " << currentStructDef.byteSize << std::endl;
-		std::cout << "Struct has these members: " << std::endl;
-		for (auto i : currentStructDef.membersMap)
-		{
-			std::cout << i.second.structName << " " << i.first << std::endl;
-		}
+		std::cout << "The bytesize of " << currentStructDef.structName << " is " << currentStructDef.byteSize << std::endl;
 	}
 
 	void Parser()
 	{
 		std::string word;
-		for (; charIdx < content.size(); ++charIdx)
+
+		while (charIdx < content.size())
 		{
 			token = content[charIdx];
 			if (token == '\n')
 			{
-				++charIdx;
 				++line;
 			}
 			else if (token == '#')
@@ -290,7 +283,7 @@ private:
 				{
 					++charIdx;
 				}
-				--charIdx;
+				++line;
 			}
 			else if (token == '"')
 			{
@@ -298,7 +291,7 @@ private:
 				unsigned long long lastIdx = charIdx;
 				word.erase(word.begin(), word.end());
 
-				while (content[charIdx]!='"')
+				while (content[charIdx] != '"')
 				{
 					++charIdx;
 				}
@@ -309,16 +302,20 @@ private:
 			else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || token == '_')
 			{
 				WordAndIdx wordAndIdx = GetNextWord(charIdx, line);
-
 				word = wordAndIdx.word;
 				charIdx = wordAndIdx.endIdx;
+
 				if (!word.compare("struct"))
 				{
-					++charIdx;
 					StructDefinitionParser();
 				}
+				else
+				{
+					std::cout << "Unit word: " << word << std::endl;
+				}
 
-				std::cout << "Unit word: " << word << std::endl;
+				--charIdx;
+
 			}
 			else if (token >= '0' && token <= '9')
 			{
@@ -390,6 +387,7 @@ private:
 						++charIdx;
 					}
 					--charIdx;
+					++line;
 
 					std::cout << "Skip Commit" << std::endl;
 				}
@@ -507,6 +505,7 @@ private:
 				std::cout << "Operator: ?" << std::endl;
 			}
 
+			++charIdx;
 		}
 
 	}
