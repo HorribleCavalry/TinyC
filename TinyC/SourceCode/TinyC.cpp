@@ -30,6 +30,14 @@ public:
 		std::map<std::string, StructDefinition> membersMap;
 	};
 
+	struct FunctionDefinition
+	{
+		std::string returnTypeName;
+		std::string functionName;
+		std::map<std::string, StructDefinition> localVariable;
+		std::vector<FunctionDefinition> instructions;
+	};
+
 private:
 	std::string content;
 	unsigned long long line;
@@ -50,6 +58,8 @@ private:
 	int* symbols;
 
 	std::map<std::string, StructDefinition> structDefMap;
+	std::map<std::string, StructDefinition> variableMap;
+	std::map<std::string, FunctionDefinition> functionMap;
 
 public:
 	TinyCProgram()
@@ -197,7 +207,6 @@ private:
 	}
 
 
-
 	void StructDefinitionParser()
 	{
 		std::cout << "Now Start struct parser:" << std::endl;
@@ -266,6 +275,33 @@ private:
 		std::cout << "The bytesize of " << currentStructDef.structName << " is " << currentStructDef.byteSize << std::endl;
 	}
 
+	void SentenceParser()
+	{
+
+	}
+
+	void FunctionDefinitionParser()
+	{
+
+	}
+
+	void MainFunctionParser()
+	{
+		std::cout << "Now Start main function parser:" << std::endl;
+
+		while (content[charIdx] != '{')
+		{
+			++charIdx;
+		}
+
+		while (content[charIdx]!='}')
+		{
+
+		}
+
+	}
+
+
 	void Parser()
 	{
 		std::string word;
@@ -308,6 +344,10 @@ private:
 				if (!word.compare("struct"))
 				{
 					StructDefinitionParser();
+				}
+				else if (structDefMap.find(word)!= structDefMap.end())
+				{
+					FunctionDefinitionParser();
 				}
 				else
 				{
